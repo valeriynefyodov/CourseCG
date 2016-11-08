@@ -102,7 +102,7 @@ public class View extends JPanel {
      * Left half - original, right - filtered
      */
     private void splitImage() {
-        /*for (int x = 0; x < SIZE_W / 2; x++) {
+        for (int x = 0; x < SIZE_W / 2; x++) {
             for (int y = 0; y < SIZE_H; y++) {
                 Color curr_color = new Color(orig_canvas.getRGB(x, y));
                 splt_g.setColor(curr_color);
@@ -116,9 +116,7 @@ public class View extends JPanel {
                 splt_g.setColor(curr_color);
                 setPoint(splt_g, x, y);
             }
-        }*/
-
-
+        }
     }
 
     /**
