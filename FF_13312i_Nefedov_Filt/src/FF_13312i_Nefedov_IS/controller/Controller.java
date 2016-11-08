@@ -1,13 +1,20 @@
 package FF_13312i_Nefedov_IS.controller;
 
+import FF_13312i_Nefedov_IS.view.View;
+
 /**
  * Controller class
  * Contains methods to do program's routine
  */
 public class Controller {
 
-    public Controller() {
+    public View view;
+    public boolean showFilters;
+    public boolean isSplitted;
 
+    public Controller() {
+        this.view = new View(this, 640, 480);
+        this.showFilters = false;
     }
 
 

@@ -32,48 +32,31 @@ public class MainWindow extends MainFrame {
             throw new RuntimeException(ex);
         }
 
-        JScrollPane scrollPane = new JScrollPane(controller.view);
-        add(scrollPane);
+        //JScrollPane scrollPane = new JScrollPane(controller.view);
+        //add(scrollPane);
+
+        add(controller.view);
     }
 
     /**
-     * Show grid button's callback function
+     * Original mode button's callback function
      */
-    public void onGrid() {
-        if (!controller.isShowGrid)
-            controller.isShowGrid = true;
-        else
-            controller.isShowGrid = false;
-
-        controller.view.repaint();
-    }
+    public void onOriginal() { controller.showFilters = false; controller.isSplitted = false; controller.view.repaint();}
 
     /**
-     * Draw isolines button's callback function
+     * Filtered mode button's callback function
      */
-    public void onIsolines() {
-        if (!controller.isDrawIsoline)
-            controller.isDrawIsoline = true;
-        else
-            controller.isDrawIsoline = false;
-
-        controller.view.repaint();
-    }
+    public void onFiltered() { controller.showFilters = true; controller.isSplitted = false; controller.view.repaint();}
 
     /**
-     * Normal mode button's callback function
+     * Splitted mode button's callback function
      */
-    public void onNormal() { controller.mode = "norm"; controller.view.repaint(); }
-
-    /**
-     * Interpolar mode button's callback function
-     */
-    public void onInterpolar() { controller.mode = "interpol"; controller.view.repaint(); }
+    public void onSplitted() { controller.isSplitted = true; controller.view.repaint();}
 
     /**
      * About button's callback function
      */
-    public void onAbout() { /*controller.showAbout();*/ }
+    public void onAbout() { }
 
     /**
      * Exit button's callback function
@@ -88,25 +71,22 @@ public class MainWindow extends MainFrame {
      */
     public void createMenu() throws NoSuchMethodException {
         try {
-            addSubMenu("File", KeyEvent.VK_F);;
+            addSubMenu("File", KeyEvent.VK_F);
             addMenuItem("File/Exit", "Exit", KeyEvent.VK_X, "Exit.gif", "onExit");
 
             addSubMenu("View", KeyEvent.VK_V);
-            addMenuItem("View/Show Grid", "Show Grid", KeyEvent.VK_G, "8link.gif", "onGrid");
-            addMenuItem("View/Show Isolines", "Show Isolines", KeyEvent.VK_I, "Circle.png", "onIsolines");
 
             addSubMenu("View/Mode", KeyEvent.VK_M);
-            addMenuItem("View/Mode/Normal", "Normal mode", KeyEvent.VK_N, "Black.gif", "onNormal");
-            addMenuItem("View/Mode/Interpolar", "Interpolar mode", KeyEvent.VK_I, "Black.gif", "onInterpolar");
+            addMenuItem("View/Mode/Original", "Show original image", KeyEvent.VK_O, "Green.gif", "onOriginal");
+            addMenuItem("View/Mode/Filtered", "Show filtered image", KeyEvent.VK_F, "Blue.gif", "onFiltered");
+            addMenuItem("View/Mode/Splitted", "Show splitted image", KeyEvent.VK_F, "Red.gif", "onSplitted");
 
             addSubMenu("Help", KeyEvent.VK_H);
             addMenuItem("Help/About", "About", KeyEvent.VK_A, "About.gif", "onAbout");
 
-            addToolBarButton("View/Show Grid");
-            addToolBarButton("View/Show Isolines");
-            addToolBarSeparator();
-            addToolBarButton("View/Mode/Normal");
-            addToolBarButton("View/Mode/Interpolar");
+            addToolBarButton("View/Mode/Original");
+            addToolBarButton("View/Mode/Filtered");
+            addToolBarButton("View/Mode/Splitted");
             addToolBarSeparator();
             addToolBarButton("Help/About");
             addToolBarButton("File/Exit");
