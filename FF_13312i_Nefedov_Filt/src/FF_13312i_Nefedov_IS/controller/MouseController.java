@@ -1,7 +1,5 @@
 package FF_13312i_Nefedov_IS.controller;
 
-import FF_13312i_Nefedov_IS.model.Function;
-
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -29,16 +27,6 @@ public class MouseController {
         MouseListener listener = new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if(controller.isDrawIsoline) {
-                    if (0 < e.getX() && e.getX() < controller.view.buffImage.getWidth()
-                            && 0 < e.getY() && e.getY() < controller.view.buffImage.getHeight()) {
-                        double[] coord = controller.pixToCoord(e.getPoint().x, e.getPoint().y);
-                        double value = Function.circle(coord[0], coord[1]);
-                        controller.func_vals.add(value);
-                    }
-                }
-
-                controller.view.repaint();
             }
 
             @Override
@@ -64,15 +52,6 @@ public class MouseController {
         MouseMotionListener listener = new MouseAdapter() {
             @Override
             public void mouseMoved(MouseEvent e) {
-
-                if (0 < e.getX() && e.getX() < controller.view.buffImage.getWidth()
-                        && 0 < e.getY() && e.getY() < controller.view.buffImage.getHeight()) {
-                    controller.curr_point = e.getPoint();
-                }
-                else
-                    controller.curr_point = null;
-
-                controller.view.repaint();
             }
 
             @Override
