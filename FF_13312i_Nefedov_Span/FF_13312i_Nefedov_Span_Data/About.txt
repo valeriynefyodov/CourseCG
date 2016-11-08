@@ -1,0 +1,62 @@
+Task Span, v1.2
+Copyright © Valeriy Nefedov, NSU FF 13312i
+
+
+User's Manual:
+The program can dray the polygons, circles and fill it with selected color
+
+Polygon mode:
+Select the polygon mode on the toolbar or in the Tools -> Polygon
+Select the line thickness on the toolbar or int the Tools -> Line Width
+
+Left click - set the point of the polygon
+Right click - stop drawing the polygon
+
+
+Circle mode:
+Select the circle mode on the toolbar or in the Tools -> Circle
+Select the line thickness on the toolbar or int the Tools -> Line Width
+
+Press the left mouse button to set the center of the circle
+Without realising it, set the radius of the circle
+Release the button to stop drawing
+
+
+Fill mode:
+Select the fill mode on the toolbar or in the Tools -> Fill -> Fill
+Select the fill type on the toolbar or in the Tools -> Fill -> Type (4 link by default)
+Select the fill color on the toolbar or in the Tools -> Fill -> Color (Blue by default)
+
+By the left mouse button click select an area you'd like to fill
+
+
+Hotkeys:
+Alt+F - File
+Alt+E - Edit
+Alt+T - Tools
+Alt+H - Help
+
+Alt+F, N - New file
+Alt+F, S - Save file
+Alt+F, O - Open file
+Alt+F, X - Exit
+
+Alt+E, D - Delete the last drawn line
+
+Alt+T, P - Polygon mode
+Alt+T, C - Circle mode
+
+Alt+T, F - Fill submenu
+Alt+T, F, F - Fill mode
+Alt+T, F, C - Fill color submenu
+Alt+T, F, C, B - Blue color
+Alt+T, F, C, Y - Yellow color
+Alt+T, F, T - Fill type submenu
+Alt+T, F, T, 4 - 4 link mode
+Alt+T, F, T, 8 - 8 link mode
+
+Alt+T, W, 1 - 1px line width
+Alt+T, W, 2 - 2px line width
+Alt+T, W, 3 - 3px line width 
+
+Alt+H, A - About
