@@ -17,11 +17,13 @@ public class MainWindow extends MainFrame {
 
     /**
      * Class constructor where you can specify the main controller
-     * Creates a main window and adds a view with a scroll pane to it
+     * Creates a main window and adds a originalView with a scroll pane to it
      * @param cntrl - specified controller
      */
     public MainWindow(Controller cntrl){
         super(1024, 768, "Task IS - Valeriy P. Nefedov");
+
+        JPanel mainPanel = new JPanel(new GridLayout(1,2));
 
         controller = cntrl;
 
@@ -32,31 +34,31 @@ public class MainWindow extends MainFrame {
             throw new RuntimeException(ex);
         }
 
-        //JScrollPane scrollPane = new JScrollPane(controller.view);
-        //add(scrollPane);
+        mainPanel.add(controller.originalView);
+        mainPanel.add(controller.filteredView);
 
-        add(controller.view);
+        add(mainPanel);
     }
 
     /**
      * Original mode button's callback function
      */
-    public void onOriginal() { controller.showFilters = false; controller.isSplitted = false; controller.view.repaint();}
+    public void onOriginal() { controller.copySRCToDST(); }
 
     /**
      * Filtered mode button's callback function
      */
-    public void onFiltered() { controller.showFilters = true; controller.isSplitted = false; controller.view.repaint();}
+    public void onFiltered() { controller.convertToBW(); }
 
     /**
      * Splitted mode button's callback function
      */
-    public void onSplitted() { controller.isSplitted = true; controller.view.repaint();}
+    public void onSplitted() { controller.convertToNegative(); }
 
     /**
      * About button's callback function
      */
-    public void onAbout() { }
+    public void onAbout() { controller.undo(); }
 
     /**
      * Exit button's callback function

@@ -5,6 +5,7 @@ import FF_13312i_Nefedov_IS.controller.MouseController;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -13,62 +14,87 @@ import java.io.IOException;
 import static java.awt.image.BufferedImage.TYPE_INT_ARGB;
 
 /**
- * Custom view class extended from JPanel class
+ * Custom originalView class extended from JPanel class
  */
 public class View extends JPanel {
 
-    private int SIZE_W;
-    private int SIZE_H;
+    private int             IMG_SIZE_W;
+    private int             IMG_SIZE_H;
+    private Color           bg_color;
 
-    public Controller controller;
-
-    public BufferedImage orig_canvas;
-    public BufferedImage filt_canvas;
-    public BufferedImage splt_canvas;
-
-    private Graphics2D orig_g;
-    private Graphics2D filt_g;
-    private Graphics2D splt_g;
-
-    private Color bg_color;
+    public Controller       controller;
+    public BufferedImage    canvas;
+    public Graphics2D       g2d;
 
     /**
-     * Class constructor where you can specify the main controller and size
+     * Class constructor where you can specify the main controller and a file you'd like to create view for
      * @param cntrl - specified controller
+     * @param input - file containing an image
      */
-    public View(Controller cntrl){
+    public View(Controller cntrl, File input){
 
         bg_color = new Color(67, 160, 255);
 
         try {
-            BufferedImage input = ImageIO.read(new File("data/1.png"));
+            BufferedImage inputImage = ImageIO.read(input);
 
-            SIZE_W = input.getWidth();
-            SIZE_H = input.getHeight();
+            IMG_SIZE_W = inputImage.getWidth();
+            IMG_SIZE_H = inputImage.getHeight();
 
-            orig_canvas = new BufferedImage(SIZE_W, SIZE_H, TYPE_INT_ARGB);
-            filt_canvas = new BufferedImage(orig_canvas.getWidth(), orig_canvas.getHeight(), TYPE_INT_ARGB);
-            splt_canvas = new BufferedImage(orig_canvas.getWidth() * 2, orig_canvas.getHeight(), TYPE_INT_ARGB);
+            canvas = new BufferedImage(IMG_SIZE_W, IMG_SIZE_H, TYPE_INT_ARGB);
+            g2d = canvas.createGraphics();
 
-            orig_g = orig_canvas.createGraphics();
-            filt_g = filt_canvas.createGraphics();
-            splt_g = splt_canvas.createGraphics();
-
-            orig_g.drawImage(input, 0, 0, null);
-            orig_g.dispose();
+            g2d.drawImage(inputImage, 0, 0, null);
+            g2d.dispose();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        convertToBW();
-
-        this.setPreferredSize(new Dimension(SIZE_W, SIZE_H));
+        this.setPreferredSize(new Dimension(IMG_SIZE_W, IMG_SIZE_H));
+        this.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(6, 6, 6, 3, bg_color),
+                BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1),
+                        "Original",
+                        TitledBorder.CENTER,
+                        TitledBorder.BELOW_TOP,
+                        new Font(Font.SANS_SERIF, Font.BOLD, 20))));
 
         controller = cntrl;
         MouseController msCntrl = new MouseController(controller);
 
         addMouseListener(msCntrl.createMouseListener());
         addMouseMotionListener(msCntrl.createMouseMotionListener());
+    }
+
+    /**
+    * Class constructor where you can specify the main controller and which creates a view with the canvas exactly like the input image's canvas
+    * @param cntrl - specified controller
+    * @param image - original image
+    */
+    public View(Controller cntrl, BufferedImage image){
+
+        bg_color = new Color(67, 160, 255);
+
+        IMG_SIZE_W = image.getWidth();
+        IMG_SIZE_H = image.getHeight();
+
+        canvas = new BufferedImage(IMG_SIZE_W, IMG_SIZE_H, TYPE_INT_ARGB);
+        g2d = canvas.createGraphics();
+
+        this.setPreferredSize(new Dimension(IMG_SIZE_W, IMG_SIZE_H));
+        this.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(6, 3, 6, 6, bg_color),
+                BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1),
+                        "Filtered",
+                        TitledBorder.CENTER,
+                        TitledBorder.BELOW_TOP,
+                        new Font(Font.SANS_SERIF, Font.BOLD, 20))));
+
+        controller = cntrl;
+        MouseController msCntrl = new MouseController(controller);
+
+        addMouseListener(msCntrl.createMouseListener());
+        addMouseMotionListener(msCntrl.createMouseMotionListener());
+
+        clearScreen();
     }
 
     /**
@@ -80,66 +106,19 @@ public class View extends JPanel {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        g.setColor(bg_color);
-        g.fillRect(0, 0, this.getWidth(), this.getHeight());
+        int drawingStartPointX = this.getWidth() / 2 - IMG_SIZE_W / 2;
+        int drawingStartPointY = this.getHeight() / 2 - IMG_SIZE_H / 2;
 
-        clearScreen();
-
-        int drawingStartPointX = this.getWidth() / 2 - SIZE_W / 2;
-        int drawingStartPointY = this.getHeight() / 2 - SIZE_H / 2;
-
-        if (!controller.isSplitted) {
-            if (controller.showFilters)
-                g.drawImage(filt_canvas, drawingStartPointX, drawingStartPointY, null);
-            else
-                g.drawImage(orig_canvas, drawingStartPointX, drawingStartPointY, null);
-
-        }
-        else {
-            splitImage();
-            g.drawImage(splt_canvas, drawingStartPointX - SIZE_W / 2, drawingStartPointY, null);
-        }
+        g.drawImage(canvas, drawingStartPointX, drawingStartPointY, null);
     }
 
     /**
-     * Clears the screen - sets default background color to the canvases
+     * Clears the screen - sets default background color to the canvas
      */
-    private void clearScreen() {
-        splt_g.setColor(Color.WHITE);
-
-        splt_g.fillRect(0, 0, splt_canvas.getWidth(), splt_canvas.getHeight());
-
-        splt_g.setColor(Color.BLACK);
-    }
-
-    /**
-     * Creates a new splitted image from original and filtered ones
-     * Left half - original, right - filtered
-     */
-    private void splitImage() {
-        splt_g.drawImage(orig_canvas, 0, 0, null);
-        splt_g.drawImage(filt_canvas, SIZE_W, 0, null);
-        splt_g.dispose();
-    }
-
-    private void convertToBW() {
-
-        for (int x = 0; x < SIZE_W; x++) {
-            for (int y = 0; y < SIZE_H; y++) {
-                Color old_color = new Color(orig_canvas.getRGB(x, y));
-                int tmp_color = (int)(old_color.getRed() * 0.299) + (int)(old_color.getGreen() * 0.587) + (int)(old_color.getBlue() * 0.114);
-
-                if (tmp_color < 0)
-                    tmp_color = 0;
-                if (tmp_color > 255)
-                    tmp_color = 255;
-
-                Color new_color = new Color(tmp_color, tmp_color, tmp_color);
-
-                filt_g.setColor(new_color);
-                setPoint(filt_g, x, y);
-            }
-        }
+    public void clearScreen() {
+        g2d.setColor(Color.WHITE);
+        g2d.fillRect(0, 0, IMG_SIZE_W, IMG_SIZE_H);
+        g2d.setColor(Color.BLACK);
     }
 
     /**
