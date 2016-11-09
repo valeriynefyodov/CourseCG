@@ -13,7 +13,7 @@ public class Controller {
     public boolean isSplitted;
 
     public Controller() {
-        this.view = new View(this, 640, 480);
+        this.view = new View(this);
         this.showFilters = false;
     }
 
