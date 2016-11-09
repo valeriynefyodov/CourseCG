@@ -48,17 +48,17 @@ public class MainWindow extends MainFrame {
     /**
      * Filtered mode button's callback function
      */
-    public void onFiltered() { controller.convertToBW(); }
+    public void onFiltered() { controller.doBlurConversion(); }
 
     /**
      * Splitted mode button's callback function
      */
-    public void onSplitted() { controller.convertToNegative(); }
+    public void onSplitted() { controller.doSharpenConversion(); }
 
     /**
      * About button's callback function
      */
-    public void onAbout() { controller.undo(); }
+    public void onAbout() { controller.doStampingConversion(); }
 
     /**
      * Exit button's callback function

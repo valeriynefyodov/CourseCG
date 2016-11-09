@@ -94,7 +94,7 @@ public class View extends JPanel {
         addMouseListener(msCntrl.createMouseListener());
         addMouseMotionListener(msCntrl.createMouseMotionListener());
 
-        clearScreen();
+        clearImage();
     }
 
     /**
@@ -113,9 +113,9 @@ public class View extends JPanel {
     }
 
     /**
-     * Clears the screen - sets default background color to the canvas
+     * Clears the image - sets default background color to the canvas
      */
-    public void clearScreen() {
+    public void clearImage() {
         g2d.setColor(Color.WHITE);
         g2d.fillRect(0, 0, IMG_SIZE_W, IMG_SIZE_H);
         g2d.setColor(Color.BLACK);
