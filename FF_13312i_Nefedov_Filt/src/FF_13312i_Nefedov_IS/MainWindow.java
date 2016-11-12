@@ -21,7 +21,7 @@ public class MainWindow extends MainFrame {
      * @param cntrl - specified controller
      */
     public MainWindow(Controller cntrl){
-        super(1024, 768, "Task IS - Valeriy P. Nefedov");
+        super(1024, 768, "Task Filt - Valeriy P. Nefedov");
 
         JPanel mainPanel = new JPanel(new GridLayout(1,2));
 
@@ -63,9 +63,7 @@ public class MainWindow extends MainFrame {
     /**
      * Exit button's callback function
      */
-    public void onExit(){
-        System.exit(0);
-    }
+    public void onExit(){ controller.doContourSelection(); /*System.exit(0);*/ }
 
     /**
      * Creates menu, toolbar, sets a hot keys and callbacks to it
