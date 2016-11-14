@@ -12,8 +12,7 @@ public class Main {
      */
     private static void initApp(){
         Controller controller = new Controller();
-        MainWindow mainFrame = new MainWindow(controller);
-        mainFrame.setVisible(true);
+        controller.mainView.setVisible(true);
     }
 
     /**

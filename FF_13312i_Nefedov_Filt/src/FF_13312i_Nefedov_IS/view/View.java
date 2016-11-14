@@ -106,6 +106,8 @@ public class View extends JPanel {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
+        clearPanel(g);
+
         int drawingStartPointX = this.getWidth() / 2 - IMG_SIZE_W / 2;
         int drawingStartPointY = this.getHeight() / 2 - IMG_SIZE_H / 2;
 
@@ -119,6 +121,11 @@ public class View extends JPanel {
         g2d.setColor(Color.WHITE);
         g2d.fillRect(0, 0, IMG_SIZE_W, IMG_SIZE_H);
         g2d.setColor(Color.BLACK);
+    }
+
+    private void clearPanel(Graphics g) {
+        g.setColor(this.bg_color);
+        g.fillRect(0, 0, this.getWidth(), this.getHeight());
     }
 
     /**

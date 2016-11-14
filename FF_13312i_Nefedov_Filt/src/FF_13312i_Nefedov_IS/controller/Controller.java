@@ -1,13 +1,16 @@
 package FF_13312i_Nefedov_IS.controller;
 
+import FF_13312i_Nefedov_IS.MainWindow;
 import FF_13312i_Nefedov_IS.view.View;
 
 import javax.naming.SizeLimitExceededException;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.InputMismatchException;
 import java.util.List;
 
 import static java.awt.image.BufferedImage.TYPE_INT_ARGB;
@@ -17,24 +20,32 @@ import static java.awt.image.BufferedImage.TYPE_INT_ARGB;
  * Contains methods to do program's routine
  */
 public class Controller {
-    private double  gamma;
+    private int contourLevel;
+    private int userDivider;
+    private int userOffset;
+    private double gamma;
     private boolean isAqua;
+    private boolean isAutoDivider;
 
     private List<Integer> stampingMatrix;
     private List<Integer> blurMatrix;
     private List<Integer> sharpenMatrix;
     private List<Integer> contourMatrix;
+    private List<Integer> userMatrix;
 
     private static int MATRIX_3x3 = 9;
     private static int MATRIX_5x5 = 25;
 
+    public MainWindow mainView;
 
     public View originalView;
     public View filteredView;
-    public List<BufferedImage> backup;
 
     public Controller() {
-        this.gamma = 1.1;
+        this.contourLevel = 0;
+        this.gamma = 1.;
+        this.userDivider = 1;
+        this.userOffset = 0;
         this.isAqua = false;
 
         this.originalView = new View(this, new File("data/1.png"));
@@ -44,10 +55,56 @@ public class Controller {
         this.contourMatrix = new ArrayList<>();
         this.sharpenMatrix = new ArrayList<>();
         this.blurMatrix = new ArrayList<>();
+        this.userMatrix = new ArrayList<>();
 
-        this.backup = new ArrayList<>();
+        this.mainView = new MainWindow(this);
 
         fillMatrix();
+    }
+    public int getContourLevel() { return contourLevel; }
+
+    public void setContourLevel(int contourLevel) {
+        this.contourLevel = contourLevel;
+    }
+
+    public double getGamma() {
+        return gamma;
+    }
+
+    public void setGamma(double gamma) {
+        this.gamma = gamma;
+    }
+
+    private void loadMatrixOptions() {
+        int[] userMatrixArray = new int[25];
+
+        userMatrix.clear();
+
+        for (int i = 0; i < userMatrixArray.length; i++) {
+            String value = mainView.matrixElements.get(i).getText();
+
+            if (!value.isEmpty())
+                userMatrixArray[i] = Integer.parseInt(value);
+            else
+                userMatrixArray[i] = 0;
+        }
+
+        setMatrix(userMatrix, userMatrixArray);
+
+        String divider = mainView.matrixDivider.getText();
+        String offset  = mainView.matrixOffset.getText();
+
+        if (!divider.isEmpty())
+            userDivider = Integer.parseInt(divider);
+        else
+            userDivider = 1;
+
+        if (!offset.isEmpty())
+            userOffset = Integer.parseInt(offset);
+        else
+            userOffset = 0;
+
+        isAutoDivider = mainView.isAutoDivider.isSelected();
     }
 
     private void fillMatrix() {
@@ -56,35 +113,15 @@ public class Controller {
         int[] sharpenArray  = {0, -1, 0, -1, 5, -1, 0, -1, 0};
         int[] blurArray     = {0, 1, 0, 1, 2, 1, 0, 1, 0};
 
-        for (int element : stampingArray)
-            this.stampingMatrix.add(element);
-
-        for (int element : contourArray)
-            this.contourMatrix.add(element);
-
-        for (int element : sharpenArray)
-            this.sharpenMatrix.add(element);
-
-        for (int element : blurArray)
-            this.blurMatrix.add(element);
+        setMatrix(this.stampingMatrix, stampingArray);
+        setMatrix(this.sharpenMatrix, sharpenArray);
+        setMatrix(this.contourMatrix, contourArray);
+        setMatrix(this.blurMatrix, blurArray);
     }
 
-    public void setGamma(double value) {
-        this.gamma = value;
-    }
-
-    public void copySRCToDST() {
-        backup.clear();
-        filteredView.clearImage();
-        filteredView.g2d.drawImage(originalView.canvas, 0, 0, null);
-        filteredView.repaint();
-    }
-
-    public void copyDSTToSRC() {
-        backup.clear();
-        originalView.clearImage();
-        originalView.g2d.drawImage(filteredView.canvas, 0, 0, null);
-        originalView.repaint();
+    public void setMatrix(List<Integer> matrix, int[] matrix_array) {
+        for (int element : matrix_array)
+            matrix.add(element);
     }
 
     private Color fitColors(int r, int g, int b) {
@@ -102,135 +139,6 @@ public class Controller {
             b = 255;
 
         return new Color(r, g, b);
-    }
-
-    public void doBWConversion() {
-        backup.add(filteredView.canvas);
-
-        BufferedImage buffer = copyImage(originalView.canvas);
-
-        filteredView.clearImage();
-
-        for (int x = 0; x < buffer.getWidth(); x++) {
-            for (int y = 0; y < buffer.getHeight(); y++) {
-                Color old_color = new Color(buffer.getRGB(x, y));
-                int tmp_color = (int)(old_color.getRed() * 0.299) + (int)(old_color.getGreen() * 0.587) + (int)(old_color.getBlue() * 0.114);
-
-                if (tmp_color < 0)
-                    tmp_color = 0;
-                if (tmp_color > 255)
-                    tmp_color = 255;
-
-                Color new_color = new Color(tmp_color, tmp_color, tmp_color);
-
-                filteredView.g2d.setColor(new_color);
-                View.setPoint(filteredView.g2d, x, y);
-            }
-        }
-
-        buffer.getGraphics().dispose();
-        filteredView.repaint();
-    }
-
-    public void doNegativeConversion() {
-        backup.add(filteredView.canvas);
-
-        BufferedImage buffer = copyImage(originalView.canvas);
-
-        filteredView.clearImage();
-
-        for (int x = 0; x < buffer.getWidth(); x++) {
-            for (int y = 0; y < buffer.getHeight(); y++) {
-                Color old_color = new Color(buffer.getRGB(x, y));
-                Color new_color = new Color(255 - old_color.getRed(), 255 - old_color.getGreen(), 255 - old_color.getBlue());
-
-                filteredView.g2d.setColor(new_color);
-                View.setPoint(filteredView.g2d, x, y);
-            }
-        }
-
-        buffer.getGraphics().dispose();
-        filteredView.repaint();
-    }
-
-    public void doStampingConversion() {
-        backup.add(filteredView.canvas);
-
-        BufferedImage buffer = expandImage(originalView.canvas, Controller.MATRIX_3x3);
-
-        filteredView.clearImage();
-
-        for (int x = 1; x < buffer.getWidth() - 1; x++) {
-            for (int y = 1; y < buffer.getHeight() - 1; y++) {
-                try {
-                    Color new_color = doMatrixColorConversion(buffer, stampingMatrix, Controller.MATRIX_3x3, x, y, 128);
-
-                    filteredView.g2d.setColor(new_color);
-                    View.setPoint(filteredView.g2d, x - 1, y - 1);
-                } catch (SizeLimitExceededException ex) {
-                    ex.printStackTrace();
-                    return;
-                }
-            }
-        }
-
-        buffer.getGraphics().dispose();
-        filteredView.repaint();
-    }
-
-    public void doBlurConversion() {
-        backup.add(filteredView.canvas);
-
-        BufferedImage buffer = expandImage(originalView.canvas, Controller.MATRIX_3x3);
-
-        filteredView.clearImage();
-
-        for (int x = 1; x < buffer.getWidth() - 1; x++) {
-            for (int y = 1; y < buffer.getHeight() - 1; y++) {
-                try {
-                    Color new_color = doMatrixColorConversion(buffer, blurMatrix, Controller.MATRIX_3x3, x, y, 0);
-
-                    filteredView.g2d.setColor(new_color);
-                    View.setPoint(filteredView.g2d, x - 1, y - 1);
-                } catch (SizeLimitExceededException ex) {
-                    ex.printStackTrace();
-                    return;
-                }
-            }
-        }
-
-        buffer.getGraphics().dispose();
-        filteredView.repaint();
-    }
-
-    public void doSharpenConversion() {
-        backup.add(filteredView.canvas);
-
-        BufferedImage buffer = null;
-
-        if (isAqua)
-            buffer = expandImage(filteredView.canvas, Controller.MATRIX_3x3);
-        else
-            buffer = expandImage(originalView.canvas, Controller.MATRIX_3x3);
-
-        filteredView.clearImage();
-
-        for (int x = 1; x < buffer.getWidth() - 1; x++) {
-            for (int y = 1; y < buffer.getHeight() - 1; y++) {
-                try {
-                    Color new_color = doMatrixColorConversion(buffer, sharpenMatrix, Controller.MATRIX_3x3, x, y, 0);
-
-                    filteredView.g2d.setColor(new_color);
-                    View.setPoint(filteredView.g2d, x - 1, y - 1);
-                } catch (SizeLimitExceededException ex) {
-                    ex.printStackTrace();
-                    return;
-                }
-            }
-        }
-
-        buffer.getGraphics().dispose();
-        filteredView.repaint();
     }
 
     private BufferedImage expandImage(BufferedImage src, int matrix_type) {
@@ -275,6 +183,17 @@ public class Controller {
         }
 
         return res;
+    }
+
+    private void copyImage(BufferedImage src, BufferedImage dst) {
+        dst.getGraphics().drawImage(src, 0, 0, null);
+    }
+
+    private BufferedImage copyImage(BufferedImage src) {
+        BufferedImage dst = new BufferedImage(src.getWidth(), src.getHeight(), TYPE_INT_ARGB);
+        copyImage(src, dst);
+
+        return dst;
     }
 
     private Color doMatrixColorConversion(BufferedImage image, List<Integer> matrix, int matrix_type, int x, int y, int offset) throws SizeLimitExceededException {
@@ -330,6 +249,56 @@ public class Controller {
         return newColor;
     }
 
+    private Color doMatrixColorConversion(BufferedImage image, List<Integer> matrix, int matrix_type, int x, int y, int offset, int divider) throws SizeLimitExceededException {
+        int   new_r    = 0;
+        int   new_g    = 0;
+        int   new_b    = 0;
+        int[] dx_array = new int[(int)Math.sqrt(matrix_type)];
+        int[] dy_array = new int[(int)Math.sqrt(matrix_type)];
+
+        List<Color>  colors = new ArrayList<>();
+
+        if (matrix.size() != matrix_type) {
+            throw new SizeLimitExceededException("Matrix actual size doesn't match the specified type");
+        }
+
+        for (int i = 0; i < dx_array.length; i++) {
+            if (matrix_type == Controller.MATRIX_3x3) {
+                dx_array[i] = i - 1;
+                dy_array[i] = i - 1;
+            }
+            else if (matrix_type == Controller.MATRIX_5x5) {
+                dx_array[i] = i - 2;
+                dy_array[i] = i - 2;
+            }
+        }
+
+        for (int dy : dy_array)
+            for (int dx : dx_array)
+                colors.add(new Color(image.getRGB(x + dx, y + dy)));
+
+        for (int i = 0; i < matrix_type; i++) {
+            new_r += colors.get(i).getRed() * matrix.get(i);
+            new_g += colors.get(i).getGreen() * matrix.get(i);
+            new_b += colors.get(i).getBlue() * matrix.get(i);
+        }
+
+        if (divider <= 0)
+            divider = 1;
+
+        new_r /= divider;
+        new_g /= divider;
+        new_b /= divider;
+
+        new_r += offset;
+        new_g += offset;
+        new_b += offset;
+
+        Color newColor = fitColors(new_r, new_g, new_b);
+
+        return newColor;
+    }
+
     private Color doMedianColorConversion(BufferedImage image, int x, int y) {
         int[] dx_array = {-2, -1, 0, 1, 2};
         int[] dy_array = {-2, -1, 0, 1, 2};
@@ -345,9 +314,156 @@ public class Controller {
         return new Color(colors.get(13));
     }
 
-    public void doMedianConversion() {
-        backup.add(filteredView.canvas);
+    public void copySRCToDST() {
+        filteredView.clearImage();
 
+        doIdenticalConversion(originalView.canvas, filteredView.canvas);
+
+        filteredView.repaint();
+    }
+
+    public void copyDSTToSRC() {
+        originalView.clearImage();
+
+        doIdenticalConversion(filteredView.canvas, originalView.canvas);
+
+        originalView.repaint();
+    }
+
+    public void doIdenticalConversion(BufferedImage src, BufferedImage dst) throws InputMismatchException {
+        if (src.getWidth() != dst.getWidth() || src.getHeight() != dst.getHeight())
+            throw new InputMismatchException("Source and destination image's size doesn't match");
+
+        Graphics2D dst_g = (Graphics2D) dst.getGraphics();
+
+        for (int x = 0; x < src.getWidth(); x++) {
+            for (int y = 0; y < src.getHeight(); y++) {
+                dst_g.setColor(new Color(src.getRGB(x, y)));
+                View.setPoint(dst_g, x, y);
+            }
+        }
+    }
+
+    public void doBWConversion() {
+        BufferedImage buffer = copyImage(originalView.canvas);
+
+        filteredView.clearImage();
+
+        for (int x = 0; x < buffer.getWidth(); x++) {
+            for (int y = 0; y < buffer.getHeight(); y++) {
+                Color old_color = new Color(buffer.getRGB(x, y));
+                int tmp_color = (int)(old_color.getRed() * 0.299) + (int)(old_color.getGreen() * 0.587) + (int)(old_color.getBlue() * 0.114);
+
+                if (tmp_color < 0)
+                    tmp_color = 0;
+                if (tmp_color > 255)
+                    tmp_color = 255;
+
+                Color new_color = new Color(tmp_color, tmp_color, tmp_color);
+
+                filteredView.g2d.setColor(new_color);
+                View.setPoint(filteredView.g2d, x, y);
+            }
+        }
+
+        buffer.getGraphics().dispose();
+        filteredView.repaint();
+    }
+
+    public void doNegativeConversion() {
+        BufferedImage buffer = copyImage(originalView.canvas);
+
+        filteredView.clearImage();
+
+        for (int x = 0; x < buffer.getWidth(); x++) {
+            for (int y = 0; y < buffer.getHeight(); y++) {
+                Color old_color = new Color(buffer.getRGB(x, y));
+                Color new_color = new Color(255 - old_color.getRed(), 255 - old_color.getGreen(), 255 - old_color.getBlue());
+
+                filteredView.g2d.setColor(new_color);
+                View.setPoint(filteredView.g2d, x, y);
+            }
+        }
+
+        buffer.getGraphics().dispose();
+        filteredView.repaint();
+    }
+
+    public void doStampingConversion() {
+        BufferedImage buffer = expandImage(originalView.canvas, Controller.MATRIX_3x3);
+
+        filteredView.clearImage();
+
+        for (int x = 1; x < buffer.getWidth() - 1; x++) {
+            for (int y = 1; y < buffer.getHeight() - 1; y++) {
+                try {
+                    Color new_color = doMatrixColorConversion(buffer, stampingMatrix, Controller.MATRIX_3x3, x, y, 128);
+
+                    filteredView.g2d.setColor(new_color);
+                    View.setPoint(filteredView.g2d, x - 1, y - 1);
+                } catch (SizeLimitExceededException ex) {
+                    ex.printStackTrace();
+                    return;
+                }
+            }
+        }
+
+        buffer.getGraphics().dispose();
+        filteredView.repaint();
+    }
+
+    public void doBlurConversion() {
+        BufferedImage buffer = expandImage(originalView.canvas, Controller.MATRIX_3x3);
+
+        filteredView.clearImage();
+
+        for (int x = 1; x < buffer.getWidth() - 1; x++) {
+            for (int y = 1; y < buffer.getHeight() - 1; y++) {
+                try {
+                    Color new_color = doMatrixColorConversion(buffer, blurMatrix, Controller.MATRIX_3x3, x, y, 0);
+
+                    filteredView.g2d.setColor(new_color);
+                    View.setPoint(filteredView.g2d, x - 1, y - 1);
+                } catch (SizeLimitExceededException ex) {
+                    ex.printStackTrace();
+                    return;
+                }
+            }
+        }
+
+        buffer.getGraphics().dispose();
+        filteredView.repaint();
+    }
+
+    public void doSharpenConversion() {
+        BufferedImage buffer = null;
+
+        if (isAqua)
+            buffer = expandImage(filteredView.canvas, Controller.MATRIX_3x3);
+        else
+            buffer = expandImage(originalView.canvas, Controller.MATRIX_3x3);
+
+        filteredView.clearImage();
+
+        for (int x = 1; x < buffer.getWidth() - 1; x++) {
+            for (int y = 1; y < buffer.getHeight() - 1; y++) {
+                try {
+                    Color new_color = doMatrixColorConversion(buffer, sharpenMatrix, Controller.MATRIX_3x3, x, y, 0);
+
+                    filteredView.g2d.setColor(new_color);
+                    View.setPoint(filteredView.g2d, x - 1, y - 1);
+                } catch (SizeLimitExceededException ex) {
+                    ex.printStackTrace();
+                    return;
+                }
+            }
+        }
+
+        buffer.getGraphics().dispose();
+        filteredView.repaint();
+    }
+
+    public void doMedianConversion() {
         BufferedImage buffer = expandImage(originalView.canvas, Controller.MATRIX_5x5);
 
         filteredView.clearImage();
@@ -366,10 +482,6 @@ public class Controller {
     }
 
     public void doAquarelizationConversion() {
-        backup.add(filteredView.canvas);
-        backup.remove(backup.size() - 3);
-        backup.remove(backup.size() - 2);
-
         this.isAqua = true;
 
         doMedianConversion();
@@ -381,8 +493,6 @@ public class Controller {
     }
 
     public void doGammaCorrection() {
-        backup.add(filteredView.canvas);
-
         for (int x = 0; x < originalView.canvas.getWidth(); x++) {
             for (int y = 0; y < originalView.canvas.getHeight(); y++) {
                 Color old_color = new Color(originalView.canvas.getRGB(x, y));
@@ -402,8 +512,6 @@ public class Controller {
     }
 
     public void doContourSelection() {
-        backup.add(filteredView.canvas);
-
         BufferedImage buffer = expandImage(originalView.canvas, Controller.MATRIX_3x3);
 
         filteredView.clearImage();
@@ -411,7 +519,7 @@ public class Controller {
         for (int x = 1; x < buffer.getWidth() - 1; x++) {
             for (int y = 1; y < buffer.getHeight() - 1; y++) {
                 try {
-                    Color new_color = doMatrixColorConversion(buffer, contourMatrix, Controller.MATRIX_3x3, x, y, 0);
+                    Color new_color = doMatrixColorConversion(buffer, contourMatrix, Controller.MATRIX_3x3, x, y, this.contourLevel);
 
                     filteredView.g2d.setColor(new_color);
                     View.setPoint(filteredView.g2d, x - 1, y - 1);
@@ -426,26 +534,37 @@ public class Controller {
         filteredView.repaint();
     }
 
-    private void copyImage(BufferedImage src, BufferedImage dst) {
-        dst.getGraphics().drawImage(src, 0, 0, null);
-    }
+    public void doMatrixConversion(int dialogAnswer) {
+        if (dialogAnswer == JOptionPane.OK_OPTION) {
+            BufferedImage buffer = expandImage(originalView.canvas, Controller.MATRIX_5x5);
 
-    private BufferedImage copyImage(BufferedImage src) {
-        BufferedImage dst = new BufferedImage(src.getWidth(), src.getHeight(), TYPE_INT_ARGB);
-        copyImage(src, dst);
+            loadMatrixOptions();
 
-        return dst;
-    }
-
-    public void undo() {
-        if (!backup.isEmpty()) {
             filteredView.clearImage();
-            copyImage(backup.get(backup.size() - 1), filteredView.canvas);
-            backup.remove(backup.size() - 1);
+
+            for (int x = 2; x < buffer.getWidth() - 2; x++) {
+                for (int y = 2; y < buffer.getHeight() - 2; y++) {
+                    try {
+                        Color new_color;
+
+                        if (isAutoDivider)
+                            new_color = doMatrixColorConversion(buffer, userMatrix, Controller.MATRIX_5x5, x, y, userOffset);
+                        else
+                            new_color = doMatrixColorConversion(buffer, userMatrix, Controller.MATRIX_5x5, x, y, userOffset, userDivider);
+
+                        filteredView.g2d.setColor(new_color);
+                        View.setPoint(filteredView.g2d, x - 2, y - 2);
+                    } catch (SizeLimitExceededException ex) {
+                        ex.printStackTrace();
+                        return;
+                    }
+                }
+            }
+
+            buffer.getGraphics().dispose();
             filteredView.repaint();
         }
     }
-
 
     /**
      * Loads an information about the program and shows it
