@@ -307,7 +307,6 @@ public class MainFrame extends JFrame {
 	 * @param extension - preferred file extension (example: "txt") 
 	 * @param description - description of specified file type (example: "Text files")
 	 * @return File specified by user or null if user canceled operation
-	 * @see MainFrame.getOpenFileName
 	 */
 	public File getSaveFileName(String extension, String description)
 	{
@@ -319,9 +318,8 @@ public class MainFrame extends JFrame {
 	 * @param extension - preferred file extension (example: "txt") 
 	 * @param description - description of specified file type (example: "Text files")
 	 * @return File specified by user or null if user canceled operation
-	 * @see MainFrame.getSaveFileName
 	 */
-	public File getOpenFileName(String extension, String description)
+	public File getOpenFileName(String extension[], String description)
 	{
 		return FileUtils.getOpenFileName(this, extension, description);
 	}
