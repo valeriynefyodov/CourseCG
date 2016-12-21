@@ -36,6 +36,8 @@ public class MainWindow extends MainFrame {
         return mainPanel;
     }
 
+    public void setMainPanel(JPanel mainPanel) { this.mainPanel = mainPanel; }
+
     /**
      * Class constructor where you can specify the main controller
      * Creates a main window and adds a originalView with a scroll pane to it
@@ -283,7 +285,7 @@ public class MainWindow extends MainFrame {
     /**
      * About button's callback function
      */
-    public void onAbout(){  }
+    public void onAbout(){ controller.showAbout(); }
 
     /**
      * Exit button's callback function
@@ -314,7 +316,7 @@ public class MainWindow extends MainFrame {
             addMenuItem("Tools/Filters/Stamping", "Stamping filter", KeyEvent.VK_S, "Stamp.png", "onStamping");
             addMenuItem("Tools/Filters/Blur", "Blur filter", KeyEvent.VK_R, "Blur.png", "onBlur");
             addMenuItem("Tools/Filters/Sharpen", "Sharpen filter", KeyEvent.VK_H, "Sharpen.png", "onSharpen");
-            addMenuItem("Tools/Filters/Aquarelization", "Aquarelization filter", KeyEvent.VK_A, "Aqua.png", "onAqua");
+            addMenuItem("Tools/Filters/Watercolor", "Watercolor filter", KeyEvent.VK_A, "Aqua.png", "onAqua");
             addMenuItem("Tools/Filters/Contour selection", "Contour Selection", KeyEvent.VK_C, "Contour.png", "onContour");
             addMenuItem("Tools/Filters/Gamma correction", "Gamma Correction", KeyEvent.VK_G, "Gamma.png", "onGamma");
             addMenuItem("Tools/Filters/Custom Matrix filter", "Custom Matrix filter", KeyEvent.VK_M, "Matrix.png", "onCustomMatrix");
@@ -337,7 +339,7 @@ public class MainWindow extends MainFrame {
             addToolBarButton("Tools/Filters/Stamping");
             addToolBarButton("Tools/Filters/Blur");
             addToolBarButton("Tools/Filters/Sharpen");
-            addToolBarButton("Tools/Filters/Aquarelization");
+            addToolBarButton("Tools/Filters/Watercolor");
             addToolBarButton("Tools/Filters/Contour selection");
             addToolBarButton("Tools/Filters/Gamma correction");
             addToolBarButton("Tools/Filters/Custom Matrix filter");
