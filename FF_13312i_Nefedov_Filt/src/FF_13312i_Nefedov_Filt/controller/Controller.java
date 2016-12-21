@@ -160,9 +160,12 @@ public class Controller {
             mainPanel.add(this.originalView);
             mainPanel.add(this.filteredView);
 
+            this.mainView.setMainPanel(mainPanel);
+
             this.mainView.add(mainPanel);
-            this.mainView.setVisible(true);
         }
+
+        this.mainView.setVisible(true);
     }
 
     private void loadMatrixOptions() {
@@ -566,9 +569,9 @@ public class Controller {
             for (int y = 0; y < originalView.canvas.getHeight(); y++) {
                 Color old_color = new Color(originalView.canvas.getRGB(x, y));
 
-                int new_r = (int)Math.pow((double)old_color.getRed(), this.gamma);
-                int new_g = (int)Math.pow((double)old_color.getGreen(), this.gamma);
-                int new_b = (int)Math.pow((double)old_color.getBlue(), this.gamma);
+                int new_r = (int)Math.pow((double)old_color.getRed(), 1./this.gamma);
+                int new_g = (int)Math.pow((double)old_color.getGreen(), 1./this.gamma);
+                int new_b = (int)Math.pow((double)old_color.getBlue(), 1./this.gamma);
 
                 Color new_color = fitColors(new_r, new_g, new_b);
 
@@ -639,7 +642,7 @@ public class Controller {
      * Loads an information about the program and shows it
      */
     public void showAbout() {
-        File about = new File("FF_13312i_Nefedov_IS_Data/About.txt");
+        File about = new File("data/About.txt");
         String fileLine;
         DefaultListModel aboutText = new DefaultListModel();
 

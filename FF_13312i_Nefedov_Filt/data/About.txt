@@ -1,0 +1,50 @@
+﻿Task Filt, v1.0
+Copyright © Valeriy Nefedov, NSU FF 13312i
+
+This program applies filters to the provided image.
+The original picture located on the left side of the screen, the filtered one - on the right side.
+User can copy images from one zone to another, save the result to a .png file.
+Program works with .png, .jpg, .bmp, .gif files.
+
+Provided filters:
+
+- Identical transformation
+- Black & White
+- Negative
+- Blur
+- Sharpen
+- Stamping
+- Watercolor
+- Gamma correction
+- Contour selection
+- Custom matrix filter (5x5 matrix suppoeted)
+
+Hotkeys:
+
+Alt+F - File
+Alt+E - Edit
+Alt+T - Tools
+Alt+H - Help
+
+
+Alt+F, O - Open file
+Alt+F, S - Save filtered image
+Alt+F, X - Exit
+
+Alt+E, S - Copy from SRC zone to DST zone
+Alt+E, D - Copy from DST zone to SRC zone
+
+Alt+T, I - Identical transformation
+Alt+T, F - Filters submenu
+
+Alt+T, F, B - Black & White filter
+Alt+T, F, N - Negative filter
+Alt+T, F, S - Stamping filter
+Alt+T, F, R - Blur filter
+Alt+T, F, H - Sharpen filter
+Alt+T, F, A - Watercolor filter
+Alt+T, F, C - Contour selecton
+Alt+T, F, G - Gamma correction
+Alt+T, F, M - Custom matrix filter
+
+Alt+H, A - About   
